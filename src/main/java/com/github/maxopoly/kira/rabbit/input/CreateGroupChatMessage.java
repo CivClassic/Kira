@@ -7,7 +7,6 @@ import com.github.maxopoly.kira.relay.GroupChatManager;
 import com.github.maxopoly.kira.user.KiraUser;
 import com.github.maxopoly.kira.user.UserManager;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -78,8 +77,17 @@ public class CreateGroupChatMessage extends RabbitMessage {
 		JDA jda = KiraMain.getInstance().getJDA();
 		TextChannel channel = jda.getTextChannelById(chat.getDiscordChannelId());
 		if (channel != null) {
-			Member mem = channel.getGuild().retrieveMemberById(creator.getDiscordID()).complete();
-			channel.sendMessage("Channel is ready " + mem.getAsMention()).queue();
+			jda.retrieveUserById(creator.getDiscordID()).submit()
+					.whenComplete((discordUser, ex) -> {
+						if (ex != null) {
+							System.out.println("Failed to get user to mention");
+							ex.printStackTrace();
+							return;
+						}
+
+						channel.sendMessage("Channel is ready " + discordUser.getAsMention()).queue();
+						System.out.println("Sent message to " + discordUser.getId());
+					});
 		}
 	}
 
