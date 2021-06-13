@@ -1,21 +1,18 @@
 package com.github.maxopoly.kira.util;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-
 import com.github.maxopoly.kira.KiraMain;
 import com.github.maxopoly.kira.user.KiraUser;
-
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class DiscordMessageSender {
 
@@ -90,14 +87,20 @@ public class DiscordMessageSender {
 
 	public static void sendPrivateMessage(KiraUser user, String msg) {
 		JDA jda = KiraMain.getInstance().getJDA();
-		User discordUser = jda.retrieveUserById(user.getDiscordID()).complete();
-		if (discordUser == null) {
-			discordUser = user.getCurrentDiscordUser();
-		}
-		PrivateChannel pm = discordUser.openPrivateChannel().complete();
-		sendMessageInternal(null, null, s -> {
-			pm.sendMessage(s).queue();
-		}, msg);
+		jda.retrieveUserById(user.getDiscordID()).submit()
+				.whenComplete((discordUser, ex) -> {
+					if (ex != null) {
+						System.out.println("Failed to send private message");
+						ex.printStackTrace();
+						return;
+					}
+
+					PrivateChannel pm = discordUser.openPrivateChannel().complete();
+					sendMessageInternal(null, null, s -> {
+						pm.sendMessage(s).queue();
+					}, msg);
+					System.out.println("Sent message to " + discordUser.getId());
+				});
 	}
 	
 	public static void sendTextChannelMessage(KiraUser user, TextChannel channel, String msg) {

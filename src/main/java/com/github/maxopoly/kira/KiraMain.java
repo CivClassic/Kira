@@ -1,13 +1,5 @@
 package com.github.maxopoly.kira;
 
-import java.io.Console;
-import java.util.Scanner;
-
-import javax.security.auth.login.LoginException;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.github.maxopoly.kira.api.APISessionManager;
 import com.github.maxopoly.kira.command.model.discord.CommandHandler;
 import com.github.maxopoly.kira.command.model.discord.CommandLineInputSupplier;
@@ -25,12 +17,17 @@ import com.github.maxopoly.kira.user.DiscordRoleManager;
 import com.github.maxopoly.kira.user.KiraUser;
 import com.github.maxopoly.kira.user.UserManager;
 import com.rabbitmq.client.ConnectionFactory;
-
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.security.auth.login.LoginException;
+import java.io.Console;
+import java.util.Scanner;
 
 public class KiraMain {
 
@@ -230,7 +227,7 @@ public class KiraMain {
 			return false;
 		}
 		try {
-			jda = JDABuilder.create(token, GatewayIntent.GUILD_MESSAGES,
+			jda = JDABuilder.createLight(token, GatewayIntent.GUILD_MESSAGES,
 					GatewayIntent.GUILD_INVITES, GatewayIntent.DIRECT_MESSAGES).build();
 			jda.awaitReady();
 		} catch (LoginException | InterruptedException e) {
